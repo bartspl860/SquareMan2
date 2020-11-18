@@ -17,15 +17,16 @@ public class CameraMove : MonoBehaviour
     }
     void FixedUpdate()
     {
+        //camera movement
         float distance = Vector3.Distance(t_camera.position, t_player.position);
-        float speed = distance * 10;
+        float speed = distance * 10f;
         Vector3 dir = t_player.position - t_camera.position;
         rb2d_camera.velocity = dir * speed * Time.deltaTime;
 
-        float delta = Input.GetAxisRaw("Mouse ScrollWheel");
 
+        //camera zoom
+        float delta = Input.GetAxisRaw("Mouse ScrollWheel");
         main_camera.orthographicSize += delta * -10;
         main_camera.orthographicSize = Mathf.Clamp(main_camera.orthographicSize, 2f, 10f);
-
     }
 }
