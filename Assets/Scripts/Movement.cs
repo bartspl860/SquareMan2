@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
@@ -17,7 +18,7 @@ public class Movement : MonoBehaviour
     //player variables
     [Header("Player variables")]
     [SerializeField] private Rigidbody2D rb2d_player;
-    [SerializeField] private Transform t_player;
+    public Transform t_player;
     [SerializeField] private float velocity;
     [SerializeField] private float jump;
     [SerializeField] private float block;
@@ -42,7 +43,18 @@ public class Movement : MonoBehaviour
     [SerializeField]
     private GameObject highlight;
 
-     
+    private RectTransform menuPiece;
+    private Vector2 dir;
+    private Vector2 jumpVector2;
+
+
+    private void Start()
+    {
+        menuPiece =  highlight.GetComponent<RectTransform>();
+        dir = transform.right * velocity * Time.deltaTime;
+        jumpVector2 = transform.up * jump * Time.deltaTime;
+    }
+
     void Update()
     {
         if (Input.GetKey(eq)) circled_menu.SetActive(true);
@@ -67,7 +79,7 @@ public class Movement : MonoBehaviour
 
                 if(angle > 0f && angle < 90f)
                 {                    
-                    highlight.GetComponent<RectTransform>().eulerAngles = new Vector3(0f, 0f, 180f);
+                    menuPiece.eulerAngles = new Vector3(0f, 0f, 180f);
                     if (Input.GetMouseButtonDown(0))
                     {
                         eq_control = 1;
@@ -75,7 +87,7 @@ public class Movement : MonoBehaviour
                 }
                 if (angle > 90f && angle < 180f)
                 {
-                    highlight.GetComponent<RectTransform>().eulerAngles = new Vector3(0f, 0f, 90f);
+                    menuPiece.eulerAngles = new Vector3(0f, 0f, 90f);
                     if (Input.GetMouseButtonDown(0))
                     {
                         eq_control = 2;
@@ -83,7 +95,7 @@ public class Movement : MonoBehaviour
                 }
                 if (angle > 180f && angle < 270f)
                 {
-                    highlight.GetComponent<RectTransform>().eulerAngles = new Vector3(0f, 0f, 0f);
+                    menuPiece.eulerAngles = new Vector3(0f, 0f, 0f);
                     if (Input.GetMouseButtonDown(0))
                     {
                         eq_control = 3;
@@ -91,7 +103,7 @@ public class Movement : MonoBehaviour
                 }
                 if (angle > 270f && angle < 360f)
                 {
-                    highlight.GetComponent<RectTransform>().eulerAngles = new Vector3(0f, 0f, 270f);
+                    menuPiece.eulerAngles = new Vector3(0f, 0f, 270f);
                     if (Input.GetMouseButtonDown(0))
                     {
                         eq_control = 4;
@@ -113,28 +125,28 @@ public class Movement : MonoBehaviour
         
         if (Input.GetKey(right))
         {
-            rb2d_player.AddForce(transform.right * velocity * Time.deltaTime);           
+            rb2d_player.AddForce(dir);           
         }
         if (Input.GetKey(left))
         {
-            rb2d_player.AddForce(transform.right * -velocity * Time.deltaTime);            
+            rb2d_player.AddForce(-dir);            
         }
       
         if (ground_checker.IsTouchingLayers(ground))
         {           
             if (Input.GetKey(space))
             {
-                rb2d_player.AddForce(transform.up * jump * Time.deltaTime, ForceMode2D.Impulse);                    
+                rb2d_player.AddForce(jumpVector2, ForceMode2D.Impulse);                    
             }         
         }       
 
         if(rb2d_player.velocity.x > block)
         {
-            rb2d_player.AddForce(transform.right * -velocity * Time.deltaTime);
+            rb2d_player.AddForce(-dir);
         }
         if(rb2d_player.velocity.x < -block)
         {
-            rb2d_player.AddForce(transform.right * velocity * Time.deltaTime);
+            rb2d_player.AddForce(dir);
         }        
     }
 

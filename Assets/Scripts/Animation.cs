@@ -6,12 +6,12 @@ public class Animation : MonoBehaviour
 {
 
     private string turn = "right";
-    [SerializeField] private SpriteRenderer sr_player;
+    public SpriteRenderer sr_player;
     public Movement movement;
 
     void Start()
     {
-        
+        Debug.Log("It works");
     }
 
     void Update()
