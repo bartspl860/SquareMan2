@@ -7,11 +7,12 @@ public class Animation : MonoBehaviour
 
     private string turn = "right";
     public SpriteRenderer sr_player;
+    public Sprite PlayerSprite;
     public Movement movement;
 
     void Start()
     {
-        Debug.Log("It works");
+        
     }
 
     void Update()

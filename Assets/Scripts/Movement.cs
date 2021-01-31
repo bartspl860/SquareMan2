@@ -30,9 +30,10 @@ public class Movement : MonoBehaviour
 
     //equipment
     [Header("Equipment")]
-    [SerializeField] private string[] equipment;
-    [SerializeField] private TMP_Text show_eq;
-    private int eq_control = 0;
+    [SerializeField] private Sprite[] equipment;
+    [SerializeField] private SpriteRenderer show_eq;
+    [SerializeField] private RectTransform show_eq_RectTransform;
+    public int eq_control = 0;
 
 
     [Header("Circle Menu")]
@@ -46,21 +47,27 @@ public class Movement : MonoBehaviour
     private RectTransform menuPiece;
     private Vector2 dir;
     private Vector2 jumpVector2;
+    
+    //time control
+    public Enviroment Enviroment;
+    
+    //animation
+    public Animation Animation;
 
 
     private void Start()
     {
         menuPiece =  highlight.GetComponent<RectTransform>();
         dir = transform.right * velocity * Time.deltaTime;
-        jumpVector2 = transform.up * jump * Time.deltaTime;
     }
 
     void Update()
     {
         if (Input.GetKey(eq)) circled_menu.SetActive(true);
         else circled_menu.SetActive(false);
-                        
-        show_eq.text = equipment[eq_control];
+
+        show_eq.sprite = equipment[eq_control];
+        show_eq_RectTransform.localScale = new Vector3(150f, 150f, 1f);
 
         if (circled_menu.activeInHierarchy)
         {
@@ -136,7 +143,7 @@ public class Movement : MonoBehaviour
         {           
             if (Input.GetKey(space))
             {
-                rb2d_player.AddForce(jumpVector2, ForceMode2D.Impulse);                    
+                rb2d_player.AddForce(transform.up * jump * Time.deltaTime, ForceMode2D.Impulse);                    
             }         
         }       
 
@@ -210,11 +217,11 @@ public class Movement : MonoBehaviour
         //time control
         if (Input.GetKey(action))
         {
-            Time.timeScale = 0.7f;
+            Enviroment.rotationSpeed = 10;
         }
         else
         {
-            Time.timeScale = 1f;
+            Enviroment.rotationSpeed = 50;
         }
     }
 }

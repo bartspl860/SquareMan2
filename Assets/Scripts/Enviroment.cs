@@ -12,15 +12,28 @@ public class Enviroment : MonoBehaviour
     [SerializeField] private GameObject TeleportInfo;
     public Movement movement;
     public Animation animation;
+    public CameraMove CameraMove;
 
     [SerializeField] List<Vector3> teleportCordinates;
     private bool disablePressE = false;
     [SerializeField] private GameObject teleportButton_prefab;
     [SerializeField] private GameObject teleportMenuObj;
+    private List<Transform> rotatingSpikesTransforms = new List<Transform>();
+    public int rotationSpeed;
+
+    private int rotationHandler = 0;
+
+    [SerializeField] private SpriteRenderer timeStopEffect;
+    private float timeStopEffetHandler = 0f;
+    
 
     private void Start()
     {
-
+        GameObject[] RotatingSpikes = GameObject.FindGameObjectsWithTag("RotatingSpikes");
+        foreach (GameObject v in RotatingSpikes)
+        {
+            rotatingSpikesTransforms.Add(v.transform);
+        }
     }
 
     void FixedUpdate()
@@ -54,6 +67,26 @@ public class Enviroment : MonoBehaviour
             disablePressE = false;
             animation.sr_player.enabled = true;
         }
+    
+        //spikes rotation
+        foreach (Transform v in rotatingSpikesTransforms)
+        {
+            v.eulerAngles = new Vector3(0f, 0f, -rotationHandler*Time.fixedDeltaTime);
+            rotationHandler+=rotationSpeed;
+        }
+        
+        //time stop effect
+        if (Input.GetKey(movement.action) && movement.eq_control == 4)
+        {
+            timeStopEffect.enabled = true;
+            if(timeStopEffetHandler<100f) timeStopEffetHandler += 1.1f;
+            timeStopEffect.size = new Vector2(timeStopEffetHandler, timeStopEffetHandler);
+        }
+        else
+        {
+            timeStopEffetHandler = 0f;
+            timeStopEffect.enabled = false;
+        }
         
     }
     private void teleportMenu()
@@ -70,6 +103,7 @@ public class Enviroment : MonoBehaviour
         animation.sr_player.enabled = true;
         disablePressE = false;
         movement.t_player.position = cordinates;
+        CameraMove.transform.position = cordinates - new Vector3(0f,0f,10f);
     }
 
     public void tpGunLVL()
