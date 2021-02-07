@@ -26,7 +26,7 @@ public class CameraMove : MonoBehaviour
 
         //camera zoom
         float delta = Input.GetAxisRaw("Mouse ScrollWheel");
-        main_camera.orthographicSize += delta * -10f;
+        main_camera.orthographicSize += delta * -50f;
         main_camera.orthographicSize = Mathf.Clamp(main_camera.orthographicSize, 2f, 10f);
     }
 }

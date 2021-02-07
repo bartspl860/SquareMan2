@@ -3,6 +3,35 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+
+public class Platform
+{
+    public String Name;
+    public Vector2 Start;
+    public Vector2 End;
+    public String HorizontalTurn;
+    public String VerticalTurn;
+    public float Speed;
+    public Transform PlatformTransform;
+    public Platform(
+        String name, 
+        String horizontalTurn,
+        String verticalTurn,
+        Transform platformTransform, 
+        Vector2 start, 
+        Vector2 end, 
+        float speed
+        )
+    {
+        Name = name;
+        Start = start;
+        End = end;
+        Speed = speed;
+        HorizontalTurn = horizontalTurn;
+        VerticalTurn = verticalTurn;
+        PlatformTransform = platformTransform;
+    }
+}
 public class Enviroment : MonoBehaviour
 {
     [SerializeField] private Transform t_player;
@@ -26,6 +55,9 @@ public class Enviroment : MonoBehaviour
     [SerializeField] private SpriteRenderer timeStopEffect;
     private float timeStopEffetHandler = 0f;
     
+    public List<Platform> Platforms = new List<Platform>();
+
+
 
     private void Start()
     {
@@ -33,6 +65,23 @@ public class Enviroment : MonoBehaviour
         foreach (GameObject v in RotatingSpikes)
         {
             rotatingSpikesTransforms.Add(v.transform);
+        }
+
+        //platform feature
+        GameObject[] MovingPlatforms = GameObject.FindGameObjectsWithTag("MovingGround");
+        foreach (GameObject v in MovingPlatforms)
+        {
+            Platform testPlatform =
+                new Platform(
+                    "Test",
+                    "Right",
+                    "Up",
+                    v.GetComponent<Transform>(),
+                    new Vector2(22.5f, 10f), 
+                    new Vector2(41f, 28.5f), 
+                    5f
+                );
+            Platforms.Add(testPlatform);
         }
     }
 
@@ -88,6 +137,56 @@ public class Enviroment : MonoBehaviour
             timeStopEffect.enabled = false;
         }
         
+        //moving platform
+        foreach (Platform var in Platforms)
+        {
+            Debug.Log("Lerp: " + Vector2.Lerp(var.Start, var.End, 0.5f));
+            if (var.Start.x != var.End.x)
+            {
+                if (var.PlatformTransform.position.x >= var.End.x)
+                {
+                    var.HorizontalTurn = "Left";
+                }
+                else if(var.PlatformTransform.position.x <= var.Start.x)
+                {
+                    var.HorizontalTurn = "Right";
+                }
+       
+                if (var.HorizontalTurn == "Right")
+                {
+                    var.PlatformTransform.position = new Vector2(var.PlatformTransform.position.x+(var.Speed*Time.fixedDeltaTime), 
+                        var.PlatformTransform.position.y);
+                }
+                else
+                {
+                    var.PlatformTransform.position = new Vector2(var.PlatformTransform.position.x-(var.Speed*Time.fixedDeltaTime), 
+                        var.PlatformTransform.position.y);
+                }
+            }
+
+            if (var.Start.y != var.End.y)
+            {
+                if (var.PlatformTransform.position.y >= var.End.y)
+                {
+                    var.VerticalTurn = "Down";
+                }
+                else if(var.PlatformTransform.position.y <= var.Start.y)
+                {
+                    var.VerticalTurn = "Up";
+                }
+       
+                if (var.VerticalTurn == "Up")
+                {
+                    var.PlatformTransform.position = new Vector2(var.PlatformTransform.position.x, 
+                        var.PlatformTransform.position.y+(var.Speed*Time.fixedDeltaTime));
+                }
+                else
+                {
+                    var.PlatformTransform.position = new Vector2(var.PlatformTransform.position.x, 
+                        var.PlatformTransform.position.y-(var.Speed*Time.fixedDeltaTime));
+                }
+            }
+        }
     }
     private void teleportMenu()
     {
