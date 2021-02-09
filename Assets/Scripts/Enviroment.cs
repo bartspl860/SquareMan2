@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using TMPro;
 
 
 public class Platform
@@ -55,7 +56,15 @@ public class Enviroment : MonoBehaviour
     [SerializeField] private SpriteRenderer timeStopEffect;
     private float timeStopEffetHandler = 0f;
     
-    public List<Platform> Platforms = new List<Platform>();
+    List<Platform> Platforms = new List<Platform>();
+    [SerializeField] private GameObject PlatformObj;
+
+    [Header("Platforms Info")] 
+    [SerializeField] private String[] Name;
+    [SerializeField] private Vector2[] StartCords;
+    [SerializeField] private Vector2[] EndCords;
+    [SerializeField] private float[] Speed;
+    
 
 
 
@@ -68,21 +77,42 @@ public class Enviroment : MonoBehaviour
         }
 
         //platform feature
+        bool condition = Name.Length != StartCords.Length ||
+                         Name.Length != EndCords.Length ||
+                         Name.Length != Speed.Length;
+
+        if (condition)
+        {
+            Debug.LogError("Wrong amount of platform elements!");
+            Time.timeScale = 0f;
+        }
+        
+        for (int i = 0; i < Name.Length; i++)
+        {
+            GameObject temp = Instantiate(PlatformObj);
+
+            temp.GetComponent<Transform>().position = new Vector3(StartCords[i].x,StartCords[i].y,0f);
+            temp.GetComponentInChildren<Canvas>();
+            temp.GetComponentInChildren<GameObject>().GetComponentInChildren<TextMeshPro>().text = Name[i];
+
+            Platform platform =
+                new Platform(
+                    Name[i],
+                    "Right",
+                    "Up",
+                    temp.GetComponent<Transform>(),
+                    StartCords[i], 
+                    EndCords[i], 
+                    Speed[i]
+                );
+            Platforms.Add(platform);
+        }
+        /*
         GameObject[] MovingPlatforms = GameObject.FindGameObjectsWithTag("MovingGround");
         foreach (GameObject v in MovingPlatforms)
         {
-            Platform testPlatform =
-                new Platform(
-                    "Test",
-                    "Right",
-                    "Up",
-                    v.GetComponent<Transform>(),
-                    new Vector2(22.5f, 10f), 
-                    new Vector2(41f, 28.5f), 
-                    5f
-                );
-            Platforms.Add(testPlatform);
-        }
+            
+        }*/
     }
 
     void FixedUpdate()
@@ -140,7 +170,6 @@ public class Enviroment : MonoBehaviour
         //moving platform
         foreach (Platform var in Platforms)
         {
-            Debug.Log("Lerp: " + Vector2.Lerp(var.Start, var.End, 0.5f));
             if (var.Start.x != var.End.x)
             {
                 if (var.PlatformTransform.position.x >= var.End.x)
