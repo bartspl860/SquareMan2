@@ -10,7 +10,7 @@ public class Intro_Handler : MonoBehaviour
 {
 
     [SerializeField] private RectTransform videoScreen;
-    [SerializeField] private String inGame_path;
+    [SerializeField] private String next_scene_path;
     [SerializeField] private VideoPlayer videoPlayer;
     // Start is called before the first frame update
     void Start()
@@ -22,11 +22,10 @@ public class Intro_Handler : MonoBehaviour
     void Update()
     {
         videoScreen.sizeDelta = new Vector2(Screen.width, Screen.width/1.7777f);
-        //if(videoPlayer.loopPointReached)
     }
     
     void CheckOver(UnityEngine.Video.VideoPlayer vp)
     {
-        SceneManager.LoadScene(inGame_path);
+        SceneManager.LoadScene(next_scene_path);
     }
 }

@@ -53,12 +53,23 @@ public class Movement : MonoBehaviour
     
     //animation
     public Animation Animation;
+    
+    //Audio
+    [Header("Audio System")]
+    public AudioHandler AudioHandler;
+
+    [SerializeField] private AudioSource AudioSource;
+    
+    private AudioClip JumpClip;
+    [SerializeField] private AudioClip LowJumpClip;
+    [SerializeField] private AudioClip HighJumpClip;
 
 
     private void Start()
     {
         menuPiece =  highlight.GetComponent<RectTransform>();
         dir = transform.right * velocity * Time.deltaTime;
+        JumpClip = LowJumpClip;
     }
 
     void Update()
@@ -138,15 +149,17 @@ public class Movement : MonoBehaviour
         {
             rb2d_player.AddForce(-dir);            
         }
-      
+        
         if (ground_checker.IsTouchingLayers(ground))
-        {           
+        {
             if (Input.GetKey(space))
             {
-                rb2d_player.AddForce(transform.up * jump * Time.deltaTime, ForceMode2D.Impulse);                    
+                rb2d_player.AddForce(transform.up * jump * Time.deltaTime, ForceMode2D.Impulse);
+                AudioHandler.startAudioClip(AudioSource,JumpClip);
             }         
         }       
 
+        //blokada prędkości
         if(rb2d_player.velocity.x > block)
         {
             rb2d_player.AddForce(-dir);
@@ -181,10 +194,12 @@ public class Movement : MonoBehaviour
             //high jump
             if (Input.GetKey(action))
             {
+                JumpClip = HighJumpClip;
                 jump = 900f;
             }
             else
             {
+                JumpClip = LowJumpClip;
                 jump = 450f;
             }
         }

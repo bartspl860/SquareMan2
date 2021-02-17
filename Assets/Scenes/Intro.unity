@@ -286,7 +286,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   videoScreen: {fileID: 2139436697}
-  inGame_path: Assets/Scenes/Main.unity
+  next_scene_path: Assets/Scenes/Main Menu.unity
   videoPlayer: {fileID: 1895480988}
 --- !u!1 &874322686
 GameObject:

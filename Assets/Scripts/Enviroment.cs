@@ -4,21 +4,23 @@ using System.Collections.Generic;
 using UnityEngine;
 using TMPro;
 
-
+[System.Serializable]
 public class Platform
 {
     public String Name;
     public Vector2 Start;
     public Vector2 End;
-    public String HorizontalTurn;
-    public String VerticalTurn;
+    [HideInInspector]public String HorizontalTurn;
+    [HideInInspector]public String VerticalTurn;
     public float Speed;
-    public Transform PlatformTransform;
+    [HideInInspector] public Rigidbody2D PlatformRigidbody2D;
+    [HideInInspector] public Transform PlatformTransform;
     public Platform(
         String name, 
         String horizontalTurn,
         String verticalTurn,
-        Transform platformTransform, 
+        Rigidbody2D platformRigidbody2D,
+        Transform platformTransform,
         Vector2 start, 
         Vector2 end, 
         float speed
@@ -30,6 +32,7 @@ public class Platform
         Speed = speed;
         HorizontalTurn = horizontalTurn;
         VerticalTurn = verticalTurn;
+        PlatformRigidbody2D = platformRigidbody2D;
         PlatformTransform = platformTransform;
     }
 }
@@ -56,14 +59,22 @@ public class Enviroment : MonoBehaviour
     [SerializeField] private SpriteRenderer timeStopEffect;
     private float timeStopEffetHandler = 0f;
     
+    [Header("Platforms Info")]
+    [SerializeField]
     List<Platform> Platforms = new List<Platform>();
     [SerializeField] private GameObject PlatformObj;
+    
+    
+    [Header("Respawn")]
+    //Respawn
+    [SerializeField] private Transform Respawn;
 
-    [Header("Platforms Info")] 
-    [SerializeField] private String[] Name;
-    [SerializeField] private Vector2[] StartCords;
-    [SerializeField] private Vector2[] EndCords;
-    [SerializeField] private float[] Speed;
+    [Header("Audio")] 
+    public AudioHandler AudioHandler;
+
+    [SerializeField] private AudioSource AudioSource;
+    [SerializeField] private AudioClip DamageClip;
+    [SerializeField] private AudioClip HeroDeath;
     
 
 
@@ -77,56 +88,27 @@ public class Enviroment : MonoBehaviour
         }
 
         //platform feature
-        bool condition = Name.Length != StartCords.Length ||
-                         Name.Length != EndCords.Length ||
-                         Name.Length != Speed.Length;
 
-        if (condition)
-        {
-            Debug.LogError("Wrong amount of platform elements!");
-            Time.timeScale = 0f;
-        }
-        
-        for (int i = 0; i < Name.Length; i++)
+        foreach (Platform var in Platforms)
         {
             GameObject temp = Instantiate(PlatformObj);
-
-            temp.GetComponent<Transform>().position = new Vector3(StartCords[i].x,StartCords[i].y,0f);
-            temp.GetComponentInChildren<Canvas>();
-            temp.GetComponentInChildren<GameObject>().GetComponentInChildren<TextMeshPro>().text = Name[i];
-
-            Platform platform =
-                new Platform(
-                    Name[i],
-                    "Right",
-                    "Up",
-                    temp.GetComponent<Transform>(),
-                    StartCords[i], 
-                    EndCords[i], 
-                    Speed[i]
-                );
-            Platforms.Add(platform);
-        }
-        /*
-        GameObject[] MovingPlatforms = GameObject.FindGameObjectsWithTag("MovingGround");
-        foreach (GameObject v in MovingPlatforms)
-        {
             
-        }*/
+            temp.GetComponent<Transform>().position = new Vector3(var.Start.x, var.Start.y, 0f);
+            var.PlatformRigidbody2D = temp.GetComponent<Rigidbody2D>();
+            var.PlatformTransform = temp.GetComponent<Transform>();
+
+            temp.GetComponentInChildren<TMP_Text>().text = var.Name; 
+        }
+
     }
 
     void FixedUpdate()
     {
-        
-        if (t_player.position.y < -10 || Input.GetKey("escape"))
-        {
-            t_player.position = new Vector3(0f, 1.7f, 0);
-        }
-
         //collision with obstacle
-        if (b2d_player.IsTouchingLayers(hurt))
+        if (b2d_player.IsTouchingLayers(hurt) || (t_player.position.y < -10 || Input.GetKey("escape")))
         {
-            t_player.position = new Vector3(0f, 1.7f, 0f);
+            AudioHandler.startAudioClip(AudioSource,HeroDeath);
+            t_player.position = Respawn.position;
         }
 
         if (b2d_player.IsTouchingLayers(Teleport))//is near teleport
@@ -170,51 +152,54 @@ public class Enviroment : MonoBehaviour
         //moving platform
         foreach (Platform var in Platforms)
         {
-            if (var.Start.x != var.End.x)
+            if (var.Start.y == var.End.y)
             {
-                if (var.PlatformTransform.position.x >= var.End.x)
+                if (var.HorizontalTurn == "Right")
+                {
+                    var.PlatformRigidbody2D.MovePosition(new Vector2(
+                        var.PlatformTransform.position.x+var.Speed*Time.fixedDeltaTime,
+                        var.PlatformTransform.position.y));
+                }
+                else
+                {
+                    var.PlatformRigidbody2D.MovePosition(new Vector2(
+                        var.PlatformTransform.position.x-var.Speed*Time.fixedDeltaTime,
+                        var.PlatformTransform.position.y));
+                }
+                if (var.PlatformTransform.position.x > var.End.x)
                 {
                     var.HorizontalTurn = "Left";
                 }
-                else if(var.PlatformTransform.position.x <= var.Start.x)
+                else if (var.PlatformTransform.position.x < var.Start.x)
                 {
                     var.HorizontalTurn = "Right";
                 }
-       
-                if (var.HorizontalTurn == "Right")
-                {
-                    var.PlatformTransform.position = new Vector2(var.PlatformTransform.position.x+(var.Speed*Time.fixedDeltaTime), 
-                        var.PlatformTransform.position.y);
-                }
-                else
-                {
-                    var.PlatformTransform.position = new Vector2(var.PlatformTransform.position.x-(var.Speed*Time.fixedDeltaTime), 
-                        var.PlatformTransform.position.y);
-                }
             }
-
-            if (var.Start.y != var.End.y)
+            if (var.Start.x == var.End.x)
             {
-                if (var.PlatformTransform.position.y >= var.End.y)
+                if (var.HorizontalTurn == "Up")
                 {
-                    var.VerticalTurn = "Down";
-                }
-                else if(var.PlatformTransform.position.y <= var.Start.y)
-                {
-                    var.VerticalTurn = "Up";
-                }
-       
-                if (var.VerticalTurn == "Up")
-                {
-                    var.PlatformTransform.position = new Vector2(var.PlatformTransform.position.x, 
-                        var.PlatformTransform.position.y+(var.Speed*Time.fixedDeltaTime));
+                    var.PlatformRigidbody2D.MovePosition(new Vector2(
+                        var.PlatformTransform.position.x,
+                        var.PlatformTransform.position.y+var.Speed*Time.fixedDeltaTime));
                 }
                 else
                 {
-                    var.PlatformTransform.position = new Vector2(var.PlatformTransform.position.x, 
-                        var.PlatformTransform.position.y-(var.Speed*Time.fixedDeltaTime));
+                    var.PlatformRigidbody2D.MovePosition(new Vector2(
+                        var.PlatformTransform.position.x,
+                        var.PlatformTransform.position.y-var.Speed*Time.fixedDeltaTime));
+                }
+                if (var.PlatformTransform.position.y > var.End.y)
+                {
+                    var.HorizontalTurn = "Down";
+                }
+                else if (var.PlatformTransform.position.y < var.Start.y)
+                {
+                    var.HorizontalTurn = "Up";
                 }
             }
+            
+            
         }
     }
     private void teleportMenu()
