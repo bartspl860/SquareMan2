@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
+using UnityEngine.Serialization;
 
 public class Movement : MonoBehaviour
 {
@@ -16,79 +17,84 @@ public class Movement : MonoBehaviour
     public KeyCode eq;
 
     //player variables
+    [FormerlySerializedAs("rb2d_player")]
     [Header("Player variables")]
-    [SerializeField] private Rigidbody2D rb2d_player;
-    public Transform t_player;
+    [SerializeField] private Rigidbody2D rb2dPlayer;
+    [FormerlySerializedAs("t_player")] public Transform tPlayer;
     [SerializeField] private float velocity;
     [SerializeField] private float jump;
     [SerializeField] private float block;
 
     //check ground
+    [FormerlySerializedAs("ground_checker")]
     [Header("Check Ground")]
-    [SerializeField] private BoxCollider2D ground_checker;
+    [SerializeField] private BoxCollider2D groundChecker;
     [SerializeField] private LayerMask ground;
 
     //equipment
     [Header("Equipment")]
     [SerializeField] private Sprite[] equipment;
-    [SerializeField] private SpriteRenderer show_eq;
-    [SerializeField] private RectTransform show_eq_RectTransform;
-    public int eq_control = 0;
+    [FormerlySerializedAs("show_eq")] [SerializeField] private SpriteRenderer showEq;
+    [FormerlySerializedAs("show_eq_RectTransform")] [SerializeField] private RectTransform showEqRectTransform;
+    [FormerlySerializedAs("eq_control")] public int eqControl = 0;
 
 
+    [FormerlySerializedAs("circled_menu")]
     [Header("Circle Menu")]
     //circled menu
     [SerializeField] 
-    private GameObject circled_menu;    
-    private Vector2 moveInput;
+    private GameObject circledMenu;    
+    private Vector2 _moveInput;
     [SerializeField]
     private GameObject highlight;
 
-    private RectTransform menuPiece;
-    private Vector2 dir;
-    private Vector2 jumpVector2;
+    private RectTransform _menuPiece;
+    private Vector2 _dir;
+    private Vector2 _jumpVector2;
     
     //time control
-    public Enviroment Enviroment;
+    [FormerlySerializedAs("Enviroment")] public Enviroment enviroment;
     
     //animation
-    public Animation Animation;
+    [FormerlySerializedAs("Animation")] public Animation animation;
     
     //Audio
     [Header("Audio System")]
-    public AudioHandler AudioHandler;
 
-    [SerializeField] private AudioSource AudioSource;
+    [FormerlySerializedAs("AudioSource")] [SerializeField] private AudioSource audioSource;
     
-    private AudioClip JumpClip;
-    [SerializeField] private AudioClip LowJumpClip;
-    [SerializeField] private AudioClip HighJumpClip;
+    private AudioClip _jumpClip;
+    [FormerlySerializedAs("LowJumpClip")] [SerializeField] private AudioClip lowJumpClip;
+    [FormerlySerializedAs("HighJumpClip")] [SerializeField] private AudioClip highJumpClip;
 
 
     private void Start()
     {
-        menuPiece =  highlight.GetComponent<RectTransform>();
-        dir = transform.right * velocity * Time.deltaTime;
-        JumpClip = LowJumpClip;
+        _menuPiece =  highlight.GetComponent<RectTransform>();
+        _dir = transform.right * velocity * Time.deltaTime;
+        _jumpClip = lowJumpClip;
     }
+
 
     void Update()
     {
-        if (Input.GetKey(eq)) circled_menu.SetActive(true);
-        else circled_menu.SetActive(false);
+        if (Input.GetKey(eq)) circledMenu.SetActive(true);
+        else circledMenu.SetActive(false);
+            
+        
 
-        show_eq.sprite = equipment[eq_control];
-        show_eq_RectTransform.localScale = new Vector3(150f, 150f, 1f);
+        showEq.sprite = equipment[eqControl];
+        showEqRectTransform.localScale = new Vector3(150f, 150f, 1f);
 
-        if (circled_menu.activeInHierarchy)
+        if (circledMenu.activeInHierarchy)
         {
-            moveInput.x = Input.mousePosition.x - (Screen.width/2f);
-            moveInput.y = Input.mousePosition.y - (Screen.height/2f);
-            moveInput.Normalize();
+            _moveInput.x = Input.mousePosition.x - (Screen.width/2f);
+            _moveInput.y = Input.mousePosition.y - (Screen.height/2f);
+            _moveInput.Normalize();
 
-            if(moveInput != Vector2.zero)
+            if(_moveInput != Vector2.zero)
             {
-                float angle = Mathf.Atan2(moveInput.y, -moveInput.x) / Mathf.PI;
+                float angle = Mathf.Atan2(_moveInput.y, -_moveInput.x) / Mathf.PI;
                 angle *= 180f;
                 if(angle < 0)
                 {
@@ -97,45 +103,48 @@ public class Movement : MonoBehaviour
 
                 if(angle > 0f && angle < 90f)
                 {                    
-                    menuPiece.eulerAngles = new Vector3(0f, 0f, 180f);
+                    _menuPiece.eulerAngles = new Vector3(0f, 0f, 180f);
                     if (Input.GetMouseButtonDown(0))
                     {
-                        eq_control = 1;
+                        enviroment.MenuClickClip();
+                        eqControl = 1;
                     }
                 }
                 if (angle > 90f && angle < 180f)
                 {
-                    menuPiece.eulerAngles = new Vector3(0f, 0f, 90f);
+                    _menuPiece.eulerAngles = new Vector3(0f, 0f, 90f);
                     if (Input.GetMouseButtonDown(0))
                     {
-                        eq_control = 2;
+                        enviroment.MenuClickClip();
+                        eqControl = 2;
                     }
                 }
                 if (angle > 180f && angle < 270f)
                 {
-                    menuPiece.eulerAngles = new Vector3(0f, 0f, 0f);
+                    _menuPiece.eulerAngles = new Vector3(0f, 0f, 0f);
                     if (Input.GetMouseButtonDown(0))
                     {
-                        eq_control = 3;
+                        enviroment.MenuClickClip();
+                        eqControl = 3;
                     }
                 }
                 if (angle > 270f && angle < 360f)
                 {
-                    menuPiece.eulerAngles = new Vector3(0f, 0f, 270f);
+                    _menuPiece.eulerAngles = new Vector3(0f, 0f, 270f);
                     if (Input.GetMouseButtonDown(0))
                     {
-                        eq_control = 4;
+                        enviroment.MenuClickClip();
+                        eqControl = 4;
                     }
                 }
-                //Debug.Log(angle);
             }            
         }
-        switch (eq_control)
+        switch (eqControl)
         {
-            case 1: sprint(); break;
-            case 2: highJump(); break;
-            case 3: gravityControl(); break;
-            case 4: timeControl(); break;
+            case 1: Sprint(); break;
+            case 2: HighJump(); break;
+            case 3: GravityControl(); break;
+            case 4: TimeControl(); break;
         }
     }
     void FixedUpdate()
@@ -143,37 +152,37 @@ public class Movement : MonoBehaviour
         
         if (Input.GetKey(right))
         {
-            rb2d_player.AddForce(dir);           
+            rb2dPlayer.AddForce(_dir);           
         }
         if (Input.GetKey(left))
         {
-            rb2d_player.AddForce(-dir);            
+            rb2dPlayer.AddForce(-_dir);            
         }
         
-        if (ground_checker.IsTouchingLayers(ground))
+        if (groundChecker.IsTouchingLayers(ground))
         {
             if (Input.GetKey(space))
             {
-                rb2d_player.AddForce(transform.up * jump * Time.deltaTime, ForceMode2D.Impulse);
-                AudioHandler.startAudioClip(AudioSource,JumpClip);
+                rb2dPlayer.AddForce(transform.up * jump * Time.deltaTime, ForceMode2D.Impulse);
+                AudioHandler.Instance.StartAudioClip(audioSource,_jumpClip);
             }         
         }       
 
         //blokada prędkości
-        if(rb2d_player.velocity.x > block)
+        if(rb2dPlayer.velocity.x > block)
         {
-            rb2d_player.AddForce(-dir);
+            rb2dPlayer.AddForce(-_dir);
         }
-        if(rb2d_player.velocity.x < -block)
+        if(rb2dPlayer.velocity.x < -block)
         {
-            rb2d_player.AddForce(dir);
+            rb2dPlayer.AddForce(_dir);
         }        
     }
 
-    void sprint()
+    void Sprint()
     {        
         jump = 450f;
-        if (ground_checker.IsTouchingLayers(ground))
+        if (groundChecker.IsTouchingLayers(ground))
         {
             //sprint
             if (Input.GetKey(action))
@@ -186,57 +195,68 @@ public class Movement : MonoBehaviour
             }
         }
     }
-    void highJump()
+    void HighJump()
     {        
         block = 5f;
-        if (ground_checker.IsTouchingLayers(ground))
+        if (groundChecker.IsTouchingLayers(ground))
         {
             //high jump
             if (Input.GetKey(action))
             {
-                JumpClip = HighJumpClip;
+                _jumpClip = highJumpClip;
                 jump = 900f;
             }
             else
             {
-                JumpClip = LowJumpClip;
+                _jumpClip = lowJumpClip;
                 jump = 450f;
             }
         }
     }
-    void gravityControl()
+    void GravityControl()
     {        
         block = 5f;
         jump = 450f;
-        if (ground_checker.IsTouchingLayers(ground))
+        if (groundChecker.IsTouchingLayers(ground))
         {
             //gravity control
             if (Input.GetKeyDown(action))
             {
-                rb2d_player.gravityScale *= -1;
-                if (rb2d_player.gravityScale > 0)
+                rb2dPlayer.gravityScale *= -1;
+                if (rb2dPlayer.gravityScale > 0)
                 {
-                    t_player.rotation = Quaternion.Euler(0f, 0f, 0f);
+                    tPlayer.rotation = Quaternion.Euler(0f, 0f, 0f);
                 }
                 else
                 {
-                    t_player.rotation = Quaternion.Euler(180f, 0f, 0f);
+                    tPlayer.rotation = Quaternion.Euler(180f, 0f, 0f);
                 }
             }
         }
     }
-    void timeControl()
+
+    private bool onlyOnce = false;
+    void TimeControl()
     {        
         block = 5f;
         jump = 450f;
         //time control
         if (Input.GetKey(action))
         {
-            Enviroment.rotationSpeed = 10;
+            if(Input.GetKeyDown(action))
+                AudioHandler.Instance.StartAudioClip(enviroment.skillAudioSource,enviroment.stopTime);    
+            
+            enviroment.rotationSpeed = 10;
+            onlyOnce = true;
         }
         else
         {
-            Enviroment.rotationSpeed = 50;
+            if (onlyOnce)
+            {
+                AudioHandler.Instance.StartAudioClip(enviroment.skillAudioSource,enviroment.stopTimeAfter);
+                onlyOnce = false;
+            }
+            enviroment.rotationSpeed = 50;
         }
     }
 }

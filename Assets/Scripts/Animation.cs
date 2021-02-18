@@ -1,13 +1,14 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Serialization;
 
 public class Animation : MonoBehaviour
 {
 
-    private string turn = "right";
-    public SpriteRenderer sr_player;
-    public Sprite PlayerSprite;
+    private string _turn = "right";
+    [FormerlySerializedAs("sr_player")] public SpriteRenderer srPlayer;
+    [FormerlySerializedAs("PlayerSprite")] public Sprite playerSprite;
     public Movement movement;
 
     void Start()
@@ -18,20 +19,20 @@ public class Animation : MonoBehaviour
     void Update()
     {
         if (Input.GetKey(movement.left)){
-            turn = "left";
+            _turn = "left";
         }
         if (Input.GetKey(movement.right))
         {
-            turn = "right";
+            _turn = "right";
         }
 
-        if(turn == "right")
+        if(_turn == "right")
         {
-            sr_player.flipX = false;
+            srPlayer.flipX = false;
         }
         else
         {
-            sr_player.flipX = true;
+            srPlayer.flipX = true;
         }
     }
 }

@@ -3,14 +3,15 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using UnityEngine.Serialization;
 using UnityEngine.UI;
 using UnityEngine.Video;
 
-public class Intro_Handler : MonoBehaviour
+public class IntroHandler : MonoBehaviour
 {
 
     [SerializeField] private RectTransform videoScreen;
-    [SerializeField] private String next_scene_path;
+    [FormerlySerializedAs("next_scene_path")] [SerializeField] private String nextScenePath;
     [SerializeField] private VideoPlayer videoPlayer;
     // Start is called before the first frame update
     void Start()
@@ -26,6 +27,6 @@ public class Intro_Handler : MonoBehaviour
     
     void CheckOver(UnityEngine.Video.VideoPlayer vp)
     {
-        SceneManager.LoadScene(next_scene_path);
+        SceneManager.LoadScene(nextScenePath);
     }
 }

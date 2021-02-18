@@ -3,18 +3,19 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using TMPro;
+using UnityEngine.Serialization;
 
 [System.Serializable]
 public class Platform
 {
-    public String Name;
-    public Vector2 Start;
-    public Vector2 End;
-    [HideInInspector]public String HorizontalTurn;
-    [HideInInspector]public String VerticalTurn;
-    public float Speed;
-    [HideInInspector] public Rigidbody2D PlatformRigidbody2D;
-    [HideInInspector] public Transform PlatformTransform;
+    [FormerlySerializedAs("Name")] public String name;
+    [FormerlySerializedAs("Start")] public Vector2 start;
+    [FormerlySerializedAs("End")] public Vector2 end;
+    [FormerlySerializedAs("HorizontalTurn")] [HideInInspector]public String horizontalTurn;
+    [FormerlySerializedAs("VerticalTurn")] [HideInInspector]public String verticalTurn;
+    [FormerlySerializedAs("Speed")] public float speed;
+    [FormerlySerializedAs("PlatformRigidbody2D")] [HideInInspector] public Rigidbody2D platformRigidbody2D;
+    [FormerlySerializedAs("PlatformTransform")] [HideInInspector] public Transform platformTransform;
     public Platform(
         String name, 
         String horizontalTurn,
@@ -24,208 +25,247 @@ public class Platform
         Vector2 start, 
         Vector2 end, 
         float speed
-        )
+    )
     {
-        Name = name;
-        Start = start;
-        End = end;
-        Speed = speed;
-        HorizontalTurn = horizontalTurn;
-        VerticalTurn = verticalTurn;
-        PlatformRigidbody2D = platformRigidbody2D;
-        PlatformTransform = platformTransform;
+        this.name = name;
+        this.start = start;
+        this.end = end;
+        this.speed = speed;
+        this.horizontalTurn = horizontalTurn;
+        this.verticalTurn = verticalTurn;
+        this.platformRigidbody2D = platformRigidbody2D;
+        this.platformTransform = platformTransform;
     }
 }
 public class Enviroment : MonoBehaviour
 {
-    [SerializeField] private Transform t_player;
-    [SerializeField] private BoxCollider2D b2d_player;
+    [FormerlySerializedAs("t_player")] [SerializeField] private Transform tPlayer;
+    [FormerlySerializedAs("b2d_player")] [SerializeField] private BoxCollider2D b2dPlayer;
     [SerializeField] private LayerMask hurt;
-    [SerializeField] private LayerMask Teleport;
-    [SerializeField] private GameObject TeleportInfo;
+    [FormerlySerializedAs("Teleport")] [SerializeField] private LayerMask teleport;
+    [FormerlySerializedAs("TeleportInfo")] [SerializeField] private GameObject teleportInfo;
     public Movement movement;
     public Animation animation;
-    public CameraMove CameraMove;
+    [FormerlySerializedAs("CameraMove")] public CameraMove cameraMove;
 
     [SerializeField] List<Vector3> teleportCordinates;
-    private bool disablePressE = false;
-    [SerializeField] private GameObject teleportButton_prefab;
+    [FormerlySerializedAs("teleportButton_prefab")] [SerializeField] private GameObject teleportButtonPrefab;
     [SerializeField] private GameObject teleportMenuObj;
-    private List<Transform> rotatingSpikesTransforms = new List<Transform>();
+    private List<Transform> _rotatingSpikesTransforms = new List<Transform>();
     public int rotationSpeed;
 
-    private int rotationHandler = 0;
+    private int _rotationHandler = 0;
 
     [SerializeField] private SpriteRenderer timeStopEffect;
-    private float timeStopEffetHandler = 0f;
+    private float _timeStopEffetHandler = 0f;
+    
     
     [Header("Platforms Info")]
     [SerializeField]
-    List<Platform> Platforms = new List<Platform>();
-    [SerializeField] private GameObject PlatformObj;
-    
+    List<Platform> platforms = new List<Platform>();
+    [SerializeField] private GameObject platformObj;
     
     [Header("Respawn")]
     //Respawn
-    [SerializeField] private Transform Respawn;
+    [SerializeField] private Transform respawn;
 
     [Header("Audio")] 
-    public AudioHandler AudioHandler;
+    public AudioHandler audioHandler;
+    //---------------------------------------------
+    public AudioSource envAudioSource;
+    public AudioSource audioSource;
+    public AudioSource skillAudioSource;
+    public AudioClip damageClip;
+    public AudioClip stopTime;
+    public AudioClip stopTimeAfter;
+    public AudioClip menuNavigateClip;
+    public AudioClip teleportClip;
 
-    [SerializeField] private AudioSource AudioSource;
-    [SerializeField] private AudioClip DamageClip;
-    [SerializeField] private AudioClip HeroDeath;
-    
 
+    [Header("End Lvl")] 
+    [SerializeField] private GameObject finish;
+
+    private Collider2D finishCol2D;
+    private Transform finishTr;
 
 
     private void Start()
     {
-        GameObject[] RotatingSpikes = GameObject.FindGameObjectsWithTag("RotatingSpikes");
-        foreach (GameObject v in RotatingSpikes)
+        //finish reference
+        finishCol2D = finish.GetComponent<Collider2D>();
+        finishTr = finish.GetComponent<Transform>();
+        
+        //time effect turn on
+        timeStopEffect.enabled = true;
+        
+        //rotating spikes
+        GameObject[] rotatingSpikes = GameObject.FindGameObjectsWithTag("RotatingSpikes");
+        foreach (GameObject v in rotatingSpikes)
         {
-            rotatingSpikesTransforms.Add(v.transform);
+            _rotatingSpikesTransforms.Add(v.transform);
         }
 
         //platform feature
 
-        foreach (Platform var in Platforms)
+        foreach (Platform var in platforms)
         {
-            GameObject temp = Instantiate(PlatformObj);
+            GameObject temp = Instantiate(platformObj);
             
-            temp.GetComponent<Transform>().position = new Vector3(var.Start.x, var.Start.y, 0f);
-            var.PlatformRigidbody2D = temp.GetComponent<Rigidbody2D>();
-            var.PlatformTransform = temp.GetComponent<Transform>();
+            temp.GetComponent<Transform>().position = new Vector3(var.start.x, var.start.y, 0f);
+            var.platformRigidbody2D = temp.GetComponent<Rigidbody2D>();
+            var.platformTransform = temp.GetComponent<Transform>();
 
-            temp.GetComponentInChildren<TMP_Text>().text = var.Name; 
+            temp.GetComponentInChildren<TMP_Text>().text = var.name; 
         }
 
     }
 
+    private int rotationCoin = 0;
     void FixedUpdate()
     {
+        
+        //coin floating
+        finishTr.eulerAngles = new Vector3(0f, ++rotationCoin, 0f);
+        
+        
         //collision with obstacle
-        if (b2d_player.IsTouchingLayers(hurt) || (t_player.position.y < -10 || Input.GetKey("escape")))
+        if (b2dPlayer.IsTouchingLayers(hurt) || (tPlayer.position.y < -10 || Input.GetKey("escape")))
         {
-            AudioHandler.startAudioClip(AudioSource,HeroDeath);
-            t_player.position = Respawn.position;
+            audioHandler.StartAudioClip(envAudioSource,damageClip);
+            tPlayer.position = respawn.position;
         }
 
-        if (b2d_player.IsTouchingLayers(Teleport))//is near teleport
+        //teleports
+        if (b2dPlayer.IsTouchingLayers(teleport))//is near teleport
         {
-            if(!disablePressE) TeleportInfo.SetActive(true);
-            
-            if (Input.GetKey(KeyCode.E))
+            if(!Input.GetKey(KeyCode.E)) teleportInfo.SetActive(true);
+            else
             {
-                TeleportInfo.SetActive(false);
-                disablePressE = true;
-                teleportMenu();
+                teleportInfo.SetActive(false);
+                audioHandler.StartAudioClip(envAudioSource,teleportClip);
+                TeleportMenu();
             }
         }
         else
         {
-            TeleportInfo.SetActive(false);
-            disablePressE = false;
-            animation.sr_player.enabled = true;
+            teleportInfo.SetActive(false);
+            animation.srPlayer.enabled = true;
         }
     
         //spikes rotation
-        foreach (Transform v in rotatingSpikesTransforms)
+        foreach (Transform v in _rotatingSpikesTransforms)
         {
-            v.eulerAngles = new Vector3(0f, 0f, -rotationHandler*Time.fixedDeltaTime);
-            rotationHandler+=rotationSpeed;
+            v.eulerAngles = new Vector3(0f, 0f, -_rotationHandler*Time.fixedDeltaTime);
+            _rotationHandler+=rotationSpeed;
         }
         
         //time stop effect
-        if (Input.GetKey(movement.action) && movement.eq_control == 4)
+        if (Input.GetKey(movement.action) && movement.eqControl == 4)
         {
-            timeStopEffect.enabled = true;
-            if(timeStopEffetHandler<100f) timeStopEffetHandler += 1.1f;
-            timeStopEffect.size = new Vector2(timeStopEffetHandler, timeStopEffetHandler);
+            
+            if(_timeStopEffetHandler<100f) _timeStopEffetHandler += 1.1f;
+            timeStopEffect.size = new Vector2(_timeStopEffetHandler, _timeStopEffetHandler);
         }
         else
         {
-            timeStopEffetHandler = 0f;
-            timeStopEffect.enabled = false;
+            if (_timeStopEffetHandler > 3f) _timeStopEffetHandler -= 3.1f;
+            else _timeStopEffetHandler = 0f;
+            timeStopEffect.size = new Vector2(_timeStopEffetHandler, _timeStopEffetHandler);
         }
+
         
         //moving platform
-        foreach (Platform var in Platforms)
+        foreach (Platform var in platforms)
         {
-            if (var.Start.y == var.End.y)
+            Vector2 platformTPos = var.platformTransform.position;
+
+
+            float actualSpeed = var.speed;
+            if (Input.GetKey(movement.action) && movement.eqControl == 4)
             {
-                if (var.HorizontalTurn == "Right")
+                actualSpeed = var.speed * 0.25f;
+            }
+            
+            
+            if ((int)var.start.y == (int)var.end.y)
+            {
+                if (var.horizontalTurn == "Right")
                 {
-                    var.PlatformRigidbody2D.MovePosition(new Vector2(
-                        var.PlatformTransform.position.x+var.Speed*Time.fixedDeltaTime,
-                        var.PlatformTransform.position.y));
+                    var.platformRigidbody2D.MovePosition(new Vector2(
+                        var.platformTransform.position.x+actualSpeed*Time.fixedDeltaTime,
+                        platformTPos.y));
                 }
                 else
                 {
-                    var.PlatformRigidbody2D.MovePosition(new Vector2(
-                        var.PlatformTransform.position.x-var.Speed*Time.fixedDeltaTime,
-                        var.PlatformTransform.position.y));
+                    var.platformRigidbody2D.MovePosition(new Vector2(
+                        var.platformTransform.position.x-actualSpeed*Time.fixedDeltaTime,
+                        platformTPos.y));
                 }
-                if (var.PlatformTransform.position.x > var.End.x)
+                if (var.platformTransform.position.x > var.end.x)
                 {
-                    var.HorizontalTurn = "Left";
+                    var.horizontalTurn = "Left";
                 }
-                else if (var.PlatformTransform.position.x < var.Start.x)
+                else if (var.platformTransform.position.x < var.start.x)
                 {
-                    var.HorizontalTurn = "Right";
+                    var.horizontalTurn = "Right";
                 }
             }
-            if (var.Start.x == var.End.x)
+            if ((int)var.start.x == (int)var.end.x)
             {
-                if (var.HorizontalTurn == "Up")
+                if (var.horizontalTurn == "Up")
                 {
-                    var.PlatformRigidbody2D.MovePosition(new Vector2(
-                        var.PlatformTransform.position.x,
-                        var.PlatformTransform.position.y+var.Speed*Time.fixedDeltaTime));
+                    var.platformRigidbody2D.MovePosition(new Vector2(
+                        var.platformTransform.position.x,
+                        platformTPos.y+actualSpeed*Time.fixedDeltaTime));
                 }
                 else
                 {
-                    var.PlatformRigidbody2D.MovePosition(new Vector2(
-                        var.PlatformTransform.position.x,
-                        var.PlatformTransform.position.y-var.Speed*Time.fixedDeltaTime));
+                    var.platformRigidbody2D.MovePosition(new Vector2(
+                        var.platformTransform.position.x,
+                        platformTPos.y-actualSpeed*Time.fixedDeltaTime));
                 }
-                if (var.PlatformTransform.position.y > var.End.y)
+                if (var.platformTransform.position.y > var.end.y)
                 {
-                    var.HorizontalTurn = "Down";
+                    var.horizontalTurn = "Down";
                 }
-                else if (var.PlatformTransform.position.y < var.Start.y)
+                else if (var.platformTransform.position.y < var.start.y)
                 {
-                    var.HorizontalTurn = "Up";
+                    var.horizontalTurn = "Up";
                 }
             }
             
             
         }
     }
-    private void teleportMenu()
+    private void TeleportMenu()
     {
         Time.timeScale = 0f;
-        animation.sr_player.enabled = false;
+        animation.srPlayer.enabled = false;
         teleportMenuObj.SetActive(true);
     }
 
-    private void tpTo(Vector3 cordinates)
+    private void TpTo(Vector3 cordinates)
     {
         teleportMenuObj.SetActive(false);
         Time.timeScale = 1f;
-        animation.sr_player.enabled = true;
-        disablePressE = false;
-        movement.t_player.position = cordinates;
-        CameraMove.transform.position = cordinates - new Vector3(0f,0f,10f);
+        animation.srPlayer.enabled = true;
+        movement.tPlayer.position = cordinates;
+        cameraMove.transform.position = cordinates - new Vector3(0f,0f,10f);
+        audioHandler.StartAudioClip(envAudioSource,teleportClip);
     }
 
-    public void tpGunLVL()
+    public void TpObstaclePlatform()
     {
-        tpTo(teleportCordinates[1]);
+        TpTo(teleportCordinates[1]);
     }
 
-    public void tpStartPlatform()
+    public void TpStartPlatform()
     {
-        tpTo(teleportCordinates[0]);
+        TpTo(teleportCordinates[0]);
+    }
+
+    public void MenuClickClip()
+    {
+        audioHandler.StartAudioClip(envAudioSource,menuNavigateClip);
     }
 }
