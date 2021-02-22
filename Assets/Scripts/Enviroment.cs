@@ -122,8 +122,7 @@ public class Enviroment : MonoBehaviour
         
         //collision with coin
         if (b2dPlayer.IsTouching(finishCol2D))
-        {
-            SceneManager.UnloadSceneAsync("Ingame");
+        {            
             SceneManager.LoadScene("Scenes/Thanks for Playing");
         }
             
