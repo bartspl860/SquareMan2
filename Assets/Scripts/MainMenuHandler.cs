@@ -1,28 +1,43 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using Audio;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.Serialization;
 
 public class MainMenuHandler : MonoBehaviour
 {
-    [SerializeField] private AudioSource audioSource;
-    [SerializeField] private AudioClip menuClick;
     [SerializeField] private String path;
 
 
-    public void StartGame()
+    private void Start()
     {
-        StartCoroutine(Wait());
+        AudioManager.instance.PlaySound("Background Music");
     }
 
-    IEnumerator Wait()
+    public void StartGame()
     {
-        audioSource.loop = false;
-        audioSource.volume = 0.2f;
-        AudioHandler.Instance.StartAudioClip(audioSource,menuClick);
+        StartCoroutine(WaitToStart());
+    }
+
+    public void ExitGame()
+    {
+        StartCoroutine(WaitToExit());
+    }
+
+    IEnumerator WaitToStart()
+    {
+        AudioManager.instance.StopAll();
+        AudioManager.instance.PlaySound("Click");
         yield return new WaitForSeconds(1);
         SceneManager.LoadScene(path);
+    }
+    IEnumerator WaitToExit()
+    {
+        AudioManager.instance.StopAll();
+        AudioManager.instance.PlaySound("Click");
+        yield return new WaitForSeconds(1);
+        Application.Quit();
     }
 }

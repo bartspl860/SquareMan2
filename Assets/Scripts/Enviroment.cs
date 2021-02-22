@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using Audio;
 using UnityEngine;
 using TMPro;
+using UnityEngine.SceneManagement;
 using UnityEngine.Serialization;
 
 [System.Serializable]
@@ -51,13 +53,13 @@ public class Enviroment : MonoBehaviour
     [SerializeField] List<Vector3> teleportCordinates;
     [FormerlySerializedAs("teleportButton_prefab")] [SerializeField] private GameObject teleportButtonPrefab;
     [SerializeField] private GameObject teleportMenuObj;
-    private List<Transform> _rotatingSpikesTransforms = new List<Transform>();
+    private List<Transform> rotatingSpikesTransforms = new List<Transform>();
     public int rotationSpeed;
 
-    private int _rotationHandler = 0;
+    private int rotationHandler = 0;
 
     [SerializeField] private SpriteRenderer timeStopEffect;
-    private float _timeStopEffetHandler = 0f;
+    private float timeStopEffetHandler = 0f;
     
     
     [Header("Platforms Info")]
@@ -68,18 +70,6 @@ public class Enviroment : MonoBehaviour
     [Header("Respawn")]
     //Respawn
     [SerializeField] private Transform respawn;
-
-    [Header("Audio")] 
-    public AudioHandler audioHandler;
-    //---------------------------------------------
-    public AudioSource envAudioSource;
-    public AudioSource audioSource;
-    public AudioSource skillAudioSource;
-    public AudioClip damageClip;
-    public AudioClip stopTime;
-    public AudioClip stopTimeAfter;
-    public AudioClip menuNavigateClip;
-    public AudioClip teleportClip;
 
 
     [Header("End Lvl")] 
@@ -102,7 +92,7 @@ public class Enviroment : MonoBehaviour
         GameObject[] rotatingSpikes = GameObject.FindGameObjectsWithTag("RotatingSpikes");
         foreach (GameObject v in rotatingSpikes)
         {
-            _rotatingSpikesTransforms.Add(v.transform);
+            rotatingSpikesTransforms.Add(v.transform);
         }
 
         //platform feature
@@ -117,7 +107,10 @@ public class Enviroment : MonoBehaviour
 
             temp.GetComponentInChildren<TMP_Text>().text = var.name; 
         }
-
+        
+        //background music
+        AudioManager.instance.PlaySound("Background");
+        AudioManager.instance.SetCategoryVolume("In game music",0.33f);
     }
 
     private int rotationCoin = 0;
@@ -127,11 +120,18 @@ public class Enviroment : MonoBehaviour
         //coin floating
         finishTr.eulerAngles = new Vector3(0f, ++rotationCoin, 0f);
         
+        //collision with coin
+        if (b2dPlayer.IsTouching(finishCol2D))
+        {
+            SceneManager.UnloadSceneAsync("Ingame");
+            SceneManager.LoadScene("Scenes/Thanks for Playing");
+        }
+            
         
         //collision with obstacle
-        if (b2dPlayer.IsTouchingLayers(hurt) || (tPlayer.position.y < -10 || Input.GetKey("escape")))
+        if (b2dPlayer.IsTouchingLayers(hurt) || (tPlayer.position.y < -10 || tPlayer.position.y > 60 || Input.GetKey("escape")))
         {
-            audioHandler.StartAudioClip(envAudioSource,damageClip);
+            AudioManager.instance.PlayRandomFromCategory("Damage");
             tPlayer.position = respawn.position;
         }
 
@@ -142,7 +142,7 @@ public class Enviroment : MonoBehaviour
             else
             {
                 teleportInfo.SetActive(false);
-                audioHandler.StartAudioClip(envAudioSource,teleportClip);
+                AudioManager.instance.PlaySound("Teleport");
                 TeleportMenu();
             }
         }
@@ -153,24 +153,24 @@ public class Enviroment : MonoBehaviour
         }
     
         //spikes rotation
-        foreach (Transform v in _rotatingSpikesTransforms)
+        foreach (Transform v in rotatingSpikesTransforms)
         {
-            v.eulerAngles = new Vector3(0f, 0f, -_rotationHandler*Time.fixedDeltaTime);
-            _rotationHandler+=rotationSpeed;
+            v.eulerAngles = new Vector3(0f, 0f, -rotationHandler*Time.fixedDeltaTime);
+            rotationHandler+=rotationSpeed;
         }
         
         //time stop effect
         if (Input.GetKey(movement.action) && movement.eqControl == 4)
         {
             
-            if(_timeStopEffetHandler<100f) _timeStopEffetHandler += 1.1f;
-            timeStopEffect.size = new Vector2(_timeStopEffetHandler, _timeStopEffetHandler);
+            if(timeStopEffetHandler<100f) timeStopEffetHandler += 1.1f;
+            timeStopEffect.size = new Vector2(timeStopEffetHandler, timeStopEffetHandler);
         }
         else
         {
-            if (_timeStopEffetHandler > 3f) _timeStopEffetHandler -= 3.1f;
-            else _timeStopEffetHandler = 0f;
-            timeStopEffect.size = new Vector2(_timeStopEffetHandler, _timeStopEffetHandler);
+            if (timeStopEffetHandler > 3f) timeStopEffetHandler -= 3.1f;
+            else timeStopEffetHandler = 0f;
+            timeStopEffect.size = new Vector2(timeStopEffetHandler, timeStopEffetHandler);
         }
 
         
@@ -251,7 +251,7 @@ public class Enviroment : MonoBehaviour
         animation.srPlayer.enabled = true;
         movement.tPlayer.position = cordinates;
         cameraMove.transform.position = cordinates - new Vector3(0f,0f,10f);
-        audioHandler.StartAudioClip(envAudioSource,teleportClip);
+        AudioManager.instance.PlaySound("Teleport");
     }
 
     public void TpObstaclePlatform()
@@ -266,6 +266,6 @@ public class Enviroment : MonoBehaviour
 
     public void MenuClickClip()
     {
-        audioHandler.StartAudioClip(envAudioSource,menuNavigateClip);
+        AudioManager.instance.PlaySound("Navigate1");
     }
 }

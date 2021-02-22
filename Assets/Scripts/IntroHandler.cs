@@ -23,6 +23,7 @@ public class IntroHandler : MonoBehaviour
     void Update()
     {
         videoScreen.sizeDelta = new Vector2(Screen.width, Screen.width/1.7777f);
+        if(Input.anyKey)SceneManager.LoadScene(nextScenePath);
     }
     
     void CheckOver(UnityEngine.Video.VideoPlayer vp)

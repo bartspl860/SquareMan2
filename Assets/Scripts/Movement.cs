@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using Audio;
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
@@ -44,13 +45,13 @@ public class Movement : MonoBehaviour
     //circled menu
     [SerializeField] 
     private GameObject circledMenu;    
-    private Vector2 _moveInput;
+    private Vector2 moveInput;
     [SerializeField]
     private GameObject highlight;
 
-    private RectTransform _menuPiece;
-    private Vector2 _dir;
-    private Vector2 _jumpVector2;
+    private RectTransform menuPiece;
+    private Vector2 dir;
+    private Vector2 jumpVector2;
     
     //time control
     [FormerlySerializedAs("Enviroment")] public Enviroment enviroment;
@@ -63,38 +64,36 @@ public class Movement : MonoBehaviour
 
     [FormerlySerializedAs("AudioSource")] [SerializeField] private AudioSource audioSource;
     
-    private AudioClip _jumpClip;
+    private AudioClip jumpClip;
     [FormerlySerializedAs("LowJumpClip")] [SerializeField] private AudioClip lowJumpClip;
     [FormerlySerializedAs("HighJumpClip")] [SerializeField] private AudioClip highJumpClip;
 
 
     private void Start()
     {
-        _menuPiece =  highlight.GetComponent<RectTransform>();
-        _dir = transform.right * velocity * Time.deltaTime;
-        _jumpClip = lowJumpClip;
+        menuPiece =  highlight.GetComponent<RectTransform>();
+        dir = transform.right * (velocity * Time.deltaTime);
+        jumpClip = lowJumpClip;
     }
 
 
     void Update()
     {
-        if (Input.GetKey(eq)) circledMenu.SetActive(true);
-        else circledMenu.SetActive(false);
-            
-        
+        circledMenu.SetActive(Input.GetKey(eq));
+
 
         showEq.sprite = equipment[eqControl];
         showEqRectTransform.localScale = new Vector3(150f, 150f, 1f);
 
         if (circledMenu.activeInHierarchy)
         {
-            _moveInput.x = Input.mousePosition.x - (Screen.width/2f);
-            _moveInput.y = Input.mousePosition.y - (Screen.height/2f);
-            _moveInput.Normalize();
+            moveInput.x = Input.mousePosition.x - (Screen.width/2f);
+            moveInput.y = Input.mousePosition.y - (Screen.height/2f);
+            moveInput.Normalize();
 
-            if(_moveInput != Vector2.zero)
+            if(moveInput != Vector2.zero)
             {
-                float angle = Mathf.Atan2(_moveInput.y, -_moveInput.x) / Mathf.PI;
+                float angle = Mathf.Atan2(moveInput.y, -moveInput.x) / Mathf.PI;
                 angle *= 180f;
                 if(angle < 0)
                 {
@@ -103,25 +102,25 @@ public class Movement : MonoBehaviour
 
                 if(angle > 0f && angle < 90f)
                 {                    
-                    _menuPiece.eulerAngles = new Vector3(0f, 0f, 180f);
+                    menuPiece.eulerAngles = new Vector3(0f, 0f, 180f);
                     if (Input.GetMouseButtonDown(0))
                     {
-                        enviroment.MenuClickClip();
+                        AudioManager.instance.PlaySound("Navigate1");
                         eqControl = 1;
                     }
                 }
                 if (angle > 90f && angle < 180f)
                 {
-                    _menuPiece.eulerAngles = new Vector3(0f, 0f, 90f);
+                    menuPiece.eulerAngles = new Vector3(0f, 0f, 90f);
                     if (Input.GetMouseButtonDown(0))
                     {
-                        enviroment.MenuClickClip();
+                        AudioManager.instance.PlaySound("Navigate1");
                         eqControl = 2;
                     }
                 }
                 if (angle > 180f && angle < 270f)
                 {
-                    _menuPiece.eulerAngles = new Vector3(0f, 0f, 0f);
+                    menuPiece.eulerAngles = new Vector3(0f, 0f, 0f);
                     if (Input.GetMouseButtonDown(0))
                     {
                         enviroment.MenuClickClip();
@@ -130,10 +129,10 @@ public class Movement : MonoBehaviour
                 }
                 if (angle > 270f && angle < 360f)
                 {
-                    _menuPiece.eulerAngles = new Vector3(0f, 0f, 270f);
+                    menuPiece.eulerAngles = new Vector3(0f, 0f, 270f);
                     if (Input.GetMouseButtonDown(0))
                     {
-                        enviroment.MenuClickClip();
+                        AudioManager.instance.PlaySound("Navigate1");
                         eqControl = 4;
                     }
                 }
@@ -149,33 +148,34 @@ public class Movement : MonoBehaviour
     }
     void FixedUpdate()
     {
-        
+        //Movement left and right
         if (Input.GetKey(right))
         {
-            rb2dPlayer.AddForce(_dir);           
+            rb2dPlayer.AddForce(dir);           
         }
         if (Input.GetKey(left))
         {
-            rb2dPlayer.AddForce(-_dir);            
+            rb2dPlayer.AddForce(-dir);            
         }
         
+        //Jump
         if (groundChecker.IsTouchingLayers(ground))
         {
             if (Input.GetKey(space))
             {
-                rb2dPlayer.AddForce(transform.up * jump * Time.deltaTime, ForceMode2D.Impulse);
-                AudioHandler.Instance.StartAudioClip(audioSource,_jumpClip);
+                rb2dPlayer.AddForce(transform.up * (jump * Time.deltaTime), ForceMode2D.Impulse);
+                AudioManager.instance.PlaySound("Jump");
             }         
         }       
 
         //blokada prędkości
         if(rb2dPlayer.velocity.x > block)
         {
-            rb2dPlayer.AddForce(-_dir);
+            rb2dPlayer.AddForce(-dir);
         }
         if(rb2dPlayer.velocity.x < -block)
         {
-            rb2dPlayer.AddForce(_dir);
+            rb2dPlayer.AddForce(dir);
         }        
     }
 
@@ -185,14 +185,7 @@ public class Movement : MonoBehaviour
         if (groundChecker.IsTouchingLayers(ground))
         {
             //sprint
-            if (Input.GetKey(action))
-            {
-                block = 8f;
-            }
-            else
-            {
-                block = 5f;
-            }
+            block = Input.GetKey(action) ? 8f : 5f;
         }
     }
     void HighJump()
@@ -203,12 +196,12 @@ public class Movement : MonoBehaviour
             //high jump
             if (Input.GetKey(action))
             {
-                _jumpClip = highJumpClip;
+                jumpClip = highJumpClip;
                 jump = 900f;
             }
             else
             {
-                _jumpClip = lowJumpClip;
+                jumpClip = lowJumpClip;
                 jump = 450f;
             }
         }
@@ -217,22 +210,15 @@ public class Movement : MonoBehaviour
     {        
         block = 5f;
         jump = 450f;
-        if (groundChecker.IsTouchingLayers(ground))
-        {
-            //gravity control
-            if (Input.GetKeyDown(action))
-            {
-                rb2dPlayer.gravityScale *= -1;
-                if (rb2dPlayer.gravityScale > 0)
-                {
-                    tPlayer.rotation = Quaternion.Euler(0f, 0f, 0f);
-                }
-                else
-                {
-                    tPlayer.rotation = Quaternion.Euler(180f, 0f, 0f);
-                }
-            }
-        }
+        //gravity control
+        
+        if (!groundChecker.IsTouchingLayers(ground)) return;
+        if (!Input.GetKeyDown(action)) return;
+        
+        var gravityScale = rb2dPlayer.gravityScale;
+        gravityScale *= -1;
+        rb2dPlayer.gravityScale = gravityScale;
+        tPlayer.rotation = Quaternion.Euler(gravityScale > 0 ? 0f : 180f, 0f, 0f);
     }
 
     private bool onlyOnce = false;
@@ -243,8 +229,11 @@ public class Movement : MonoBehaviour
         //time control
         if (Input.GetKey(action))
         {
-            if(Input.GetKeyDown(action))
-                AudioHandler.Instance.StartAudioClip(enviroment.skillAudioSource,enviroment.stopTime);    
+            if (Input.GetKeyDown(action))
+            {
+                AudioManager.instance.PlaySound("TimeStopStart");
+            }
+                   
             
             enviroment.rotationSpeed = 10;
             onlyOnce = true;
@@ -253,7 +242,8 @@ public class Movement : MonoBehaviour
         {
             if (onlyOnce)
             {
-                AudioHandler.Instance.StartAudioClip(enviroment.skillAudioSource,enviroment.stopTimeAfter);
+                AudioManager.instance.StopSound("TimeStopStart");
+                AudioManager.instance.PlaySound("TimeStopEnd");
                 onlyOnce = false;
             }
             enviroment.rotationSpeed = 50;
