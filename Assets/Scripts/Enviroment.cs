@@ -116,7 +116,7 @@ public class Enviroment : MonoBehaviour
     private int rotationCoin = 0;
     void FixedUpdate()
     {
-        
+        /*
         //coin floating
         finishTr.eulerAngles = new Vector3(0f, ++rotationCoin, 0f);
         
@@ -148,7 +148,7 @@ public class Enviroment : MonoBehaviour
         else
         {
             teleportInfo.SetActive(false);
-            animation.srPlayer.enabled = true;
+            //animation.srPlayer.enabled = true;
         }
     
         //spikes rotation
@@ -235,11 +235,12 @@ public class Enviroment : MonoBehaviour
             
             
         }
+        */
     }
     private void TeleportMenu()
     {
         Time.timeScale = 0f;
-        animation.srPlayer.enabled = false;
+        //animation.srPlayer.enabled = false;
         teleportMenuObj.SetActive(true);
     }
 
@@ -247,8 +248,8 @@ public class Enviroment : MonoBehaviour
     {
         teleportMenuObj.SetActive(false);
         Time.timeScale = 1f;
-        animation.srPlayer.enabled = true;
-        movement.tPlayer.position = cordinates;
+        //animation.srPlayer.enabled = true;
+        //movement.tPlayer.position = cordinates;
         cameraMove.transform.position = cordinates - new Vector3(0f,0f,10f);
         AudioManager.instance.PlaySound("Teleport");
     }

@@ -7,30 +7,20 @@ using UnityEngine.UI;
 using TMPro;
 using UnityEngine.Serialization;
 
+
 public class Movement : MonoBehaviour
 {
     //keycodes
     [Header("Keycodes")]
-    public KeyCode left;
-    public KeyCode right;
-    public KeyCode space;
-    public KeyCode action;
-    public KeyCode eq;
+    public KeyCode left = KeyCode.A;
+    public KeyCode right = KeyCode.D;
+    public KeyCode jump = KeyCode.Space;
+    public KeyCode action = KeyCode.LeftShift;
+    public KeyCode eq = KeyCode.Tab;
 
-    //player variables
-    [FormerlySerializedAs("rb2d_player")]
-    [Header("Player variables")]
-    [SerializeField] private Rigidbody2D rb2dPlayer;
-    [FormerlySerializedAs("t_player")] public Transform tPlayer;
-    [SerializeField] private float velocity;
-    [SerializeField] private float jump;
-    [SerializeField] private float block;
-
-    //check ground
-    [FormerlySerializedAs("ground_checker")]
-    [Header("Check Ground")]
-    [SerializeField] private BoxCollider2D groundChecker;
-    [SerializeField] private LayerMask ground;
+    //player instance
+    [Header("Player")]
+    public Player player;
 
     //equipment
     [Header("Equipment")]
@@ -50,8 +40,6 @@ public class Movement : MonoBehaviour
     private GameObject highlight;
 
     private RectTransform menuPiece;
-    private Vector2 dir;
-    private Vector2 jumpVector2;
     
     //time control
     [FormerlySerializedAs("Enviroment")] public Enviroment enviroment;
@@ -71,19 +59,18 @@ public class Movement : MonoBehaviour
 
     private void Start()
     {
-        menuPiece =  highlight.GetComponent<RectTransform>();
-        dir = transform.right * (velocity * Time.deltaTime);
-        jumpClip = lowJumpClip;
+        //menuPiece =  highlight.GetComponent<RectTransform>();        
+        //jumpClip = lowJumpClip;
     }
 
-
+    
     void Update()
     {
+        
         circledMenu.SetActive(Input.GetKey(eq));
 
-
-        showEq.sprite = equipment[eqControl];
-        showEqRectTransform.localScale = new Vector3(150f, 150f, 1f);
+        //showEq.sprite = equipment[0];
+        //showEqRectTransform.localScale = new Vector3(150f, 150f, 1f);
 
         if (circledMenu.activeInHierarchy)
         {
@@ -136,49 +123,37 @@ public class Movement : MonoBehaviour
                         eqControl = 4;
                     }
                 }
-            }            
+            }        
         }
-        switch (eqControl)
+        
+        /*switch (eqControl)
         {
             case 1: Sprint(); break;
             case 2: HighJump(); break;
             case 3: GravityControl(); break;
             case 4: TimeControl(); break;
-        }
+        }*/
+        
     }
+    
     void FixedUpdate()
     {
-        //Movement left and right
-        if (Input.GetKey(right))
-        {
-            rb2dPlayer.AddForce(dir);           
-        }
         if (Input.GetKey(left))
         {
-            rb2dPlayer.AddForce(-dir);            
+            player.GoLeft(out bool result);
         }
-        
-        //Jump
-        if (groundChecker.IsTouchingLayers(ground))
+        if (Input.GetKey(right))
         {
-            if (Input.GetKey(space))
-            {
-                rb2dPlayer.AddForce(transform.up * (jump * Time.deltaTime), ForceMode2D.Impulse);
-                AudioManager.instance.PlaySound("Jump");
-            }         
-        }       
+            player.GoRight(out bool result);
+        }
+        if (Input.GetKey(jump))
+        {
+            player.Jump(out bool result);
+        }
+        Debug.Log(player.Velocity);
 
-        //blokada prędkości
-        if(rb2dPlayer.velocity.x > block)
-        {
-            rb2dPlayer.AddForce(-dir);
-        }
-        if(rb2dPlayer.velocity.x < -block)
-        {
-            rb2dPlayer.AddForce(dir);
-        }        
     }
-
+    /*
     void Sprint()
     {        
         jump = 450f;
@@ -249,4 +224,5 @@ public class Movement : MonoBehaviour
             enviroment.rotationSpeed = 50;
         }
     }
+    */
 }
