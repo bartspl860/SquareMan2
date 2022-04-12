@@ -46,7 +46,7 @@ public class Enviroment : MonoBehaviour
     [SerializeField] private LayerMask hurt;
     [FormerlySerializedAs("Teleport")] [SerializeField] private LayerMask teleport;
     [FormerlySerializedAs("TeleportInfo")] [SerializeField] private GameObject teleportInfo;
-    public Movement movement;
+    public Controller movement;
     public Animation animation;
     [FormerlySerializedAs("CameraMove")] public CameraMove cameraMove;
 

@@ -26,7 +26,6 @@ public class Player : MonoBehaviour
     [SerializeField]
     private Sprite sprite;
     public Sprite Sprite { get => sprite; set => sprite = value; }
-
     
     [Header("Variables")]
     [SerializeField]

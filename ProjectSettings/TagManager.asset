@@ -44,3 +44,6 @@ TagManager:
   - name: Default
     uniqueID: 0
     locked: 0
+  - name: CircledMenu
+    uniqueID: 3385442837
+    locked: 0
