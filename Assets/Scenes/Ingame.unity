@@ -690,7 +690,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 3
+  m_RootOrder: 2
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!50 &519420033
 Rigidbody2D:
@@ -873,17 +873,7 @@ MonoBehaviour:
   circledMenuBtn: 9
   player: {fileID: 2067535540}
   circledMenu: {fileID: 1025648397}
-  equipment: []
-  showEq: {fileID: 0}
-  showEqRectTransform: {fileID: 0}
-  eqControl: 0
-  circledMenuOld: {fileID: 0}
-  highlight: {fileID: 0}
-  enviroment: {fileID: 0}
-  animation: {fileID: 0}
-  audioSource: {fileID: 0}
-  lowJumpClip: {fileID: 0}
-  highJumpClip: {fileID: 0}
+  pickedSkill: {fileID: 1532123243}
 --- !u!4 &628700868
 Transform:
   m_ObjectHideFlags: 0
@@ -1589,7 +1579,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 7
+  m_RootOrder: 6
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 45}
 --- !u!1 &886937372
 GameObject:
@@ -1882,7 +1872,6 @@ MonoBehaviour:
     type: 3}
   teleportMenuObj: {fileID: 486940435}
   rotationSpeed: 50
-  timeStopEffect: {fileID: 736553406}
   platforms:
   - name: Platform 1
     start: {x: 22.5, y: 10}
@@ -2102,7 +2091,7 @@ Transform:
   - {fileID: 48227765}
   - {fileID: 1629305126}
   m_Father: {fileID: 0}
-  m_RootOrder: 6
+  m_RootOrder: 5
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!4 &1002351548 stripped
 Transform:
@@ -2143,7 +2132,7 @@ RectTransform:
   m_Children:
   - {fileID: 698258444}
   m_Father: {fileID: 0}
-  m_RootOrder: 5
+  m_RootOrder: 4
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}
@@ -2230,9 +2219,26 @@ MonoBehaviour:
   menuElementPrefab: {fileID: 7406199252344599899, guid: 312cb6c83d217954c9828ba0b75a5180,
     type: 3}
   items:
-  - icon: {fileID: 21300000, guid: f6a28d4c87e9e99428dc2f5836b4b5d1, type: 3}
-  - icon: {fileID: 21300000, guid: 362191bb5ddf0d94e9702f4417c36af4, type: 3}
-  - icon: {fileID: 21300000, guid: fbe8faf3dd24280499296c59da86f80b, type: 3}
+  - abilityID: 0
+    icon: {fileID: 21300000, guid: 362191bb5ddf0d94e9702f4417c36af4, type: 3}
+    name: Gravity
+    description: Reverses gravity
+    holdAbility: 0
+  - abilityID: 1
+    icon: {fileID: 21300000, guid: fbe8faf3dd24280499296c59da86f80b, type: 3}
+    name: Jump
+    description: Increases jump high
+    holdAbility: 1
+  - abilityID: 2
+    icon: {fileID: 21300000, guid: de3cf8b9052459641a93fc170d43cd9b, type: 3}
+    name: Sprint
+    description: Increases run speed
+    holdAbility: 1
+  - abilityID: 3
+    icon: {fileID: 21300000, guid: 7520c47febfe59f4bb2e1d92f07e43ce, type: 3}
+    name: Time Stop
+    description: Slows all enemies and obstacles down
+    holdAbility: 0
 --- !u!1 &1029207374
 GameObject:
   m_ObjectHideFlags: 0
@@ -2884,7 +2890,7 @@ SpriteRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
-  m_Sprite: {fileID: 21300000, guid: 362191bb5ddf0d94e9702f4417c36af4, type: 3}
+  m_Sprite: {fileID: 0}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
@@ -2892,7 +2898,7 @@ SpriteRenderer:
   m_Size: {x: 100, y: 100}
   m_AdaptiveModeThreshold: 0.702
   m_SpriteTileMode: 1
-  m_WasSpriteAssigned: 1
+  m_WasSpriteAssigned: 0
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
 --- !u!224 &1532123244
@@ -2911,7 +2917,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -333, y: -176}
+  m_AnchoredPosition: {x: -320, y: -166}
   m_SizeDelta: {x: 10, y: 10}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!1 &1553423429
@@ -2997,7 +3003,7 @@ Transform:
   m_Children:
   - {fileID: 1214040092}
   m_Father: {fileID: 0}
-  m_RootOrder: 8
+  m_RootOrder: 7
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!60 &1553423432
 PolygonCollider2D:
@@ -3293,7 +3299,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -146, y: 201}
+  m_AnchoredPosition: {x: -136, y: 166}
   m_SizeDelta: {x: 474.8, y: 60.2}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1753622484
@@ -3513,36 +3519,6 @@ Transform:
     type: 3}
   m_PrefabInstance: {fileID: 1612987043}
   m_PrefabAsset: {fileID: 0}
---- !u!1 &1794621687
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 1794621689}
-  m_Layer: 0
-  m_Name: AudioSource
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!4 &1794621689
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1794621687}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 2.9659834, y: 1.1870869, z: 136.33981}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_Children: []
-  m_Father: {fileID: 0}
-  m_RootOrder: 2
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1852498715
 GameObject:
   m_ObjectHideFlags: 0
@@ -4214,7 +4190,7 @@ Transform:
   - {fileID: 486940436}
   - {fileID: 736553405}
   m_Father: {fileID: 0}
-  m_RootOrder: 4
+  m_RootOrder: 3
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &2067535540
 MonoBehaviour:
@@ -4236,9 +4212,10 @@ MonoBehaviour:
     m_Bits: 256
   spriteRenderer: {fileID: 2067535538}
   sprite: {fileID: 21300000, guid: 9289820efd0f3114aab21ff981371a89, type: 3}
-  moveforce: 700
-  maxvelocity: 6
-  jumpforce: 600
+  timeStopCircle: {fileID: 736553406}
+  baseMoveForce: 700
+  baseMaxVelocity: 6
+  baseJumpForce: 600
 --- !u!1 &2103748998
 GameObject:
   m_ObjectHideFlags: 0

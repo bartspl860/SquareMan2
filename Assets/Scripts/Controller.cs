@@ -25,214 +25,83 @@ public class Controller : MonoBehaviour
     //CircledMenu instance
     public CircledMenu circledMenu;
 
-    //equipment
-    [Header("Equipment")]
-    [SerializeField] private Sprite[] equipment;
-    [FormerlySerializedAs("show_eq")] [SerializeField] private SpriteRenderer showEq;
-    [FormerlySerializedAs("show_eq_RectTransform")] [SerializeField] private RectTransform showEqRectTransform;
-    [FormerlySerializedAs("eq_control")] public int eqControl = 0;
-
-
-    [FormerlySerializedAs("circled_menu")]
-    [Header("Circle Menu")]
-    //circled menu
-    [SerializeField] 
-    private GameObject circledMenuOld;    
-    private Vector2 moveInput;
-    [SerializeField]
-    private GameObject highlight;
-
-    private RectTransform menuPiece;
-    
-    //time control
-    [FormerlySerializedAs("Enviroment")] public Enviroment enviroment;
-    
-    //animation
-    [FormerlySerializedAs("Animation")] public Animation animation;
-    
-    //Audio
-    [Header("Audio System")]
-
-    [FormerlySerializedAs("AudioSource")] [SerializeField] private AudioSource audioSource;
-    
-    private AudioClip jumpClip;
-    [FormerlySerializedAs("LowJumpClip")] [SerializeField] private AudioClip lowJumpClip;
-    [FormerlySerializedAs("HighJumpClip")] [SerializeField] private AudioClip highJumpClip;
-
-
     private void Start()
     {
         circledMenu.Initialize();
+        player.Initialize();
     }
 
-    
-    void Update()
-    {        
-        /*
-        circledMenu.SetActive(Input.GetKey(eq));
+    [SerializeField]
+    private SpriteRenderer pickedSkill;
+    CircledMenuItem pickedElement = null;
+    private bool isNotMoving;
 
-        //showEq.sprite = equipment[0];
-        //showEqRectTransform.localScale = new Vector3(150f, 150f, 1f);
-
-        if (circledMenu.activeInHierarchy)
-        {
-            moveInput.x = Input.mousePosition.x - (Screen.width/2f);
-            moveInput.y = Input.mousePosition.y - (Screen.height/2f);
-            moveInput.Normalize();
-
-            if(moveInput != Vector2.zero)
-            {
-                float angle = Mathf.Atan2(moveInput.y, -moveInput.x) / Mathf.PI;
-                angle *= 180f;
-                if(angle < 0)
-                {
-                    angle += 360f;
-                }
-
-                if(angle > 0f && angle < 90f)
-                {                    
-                    menuPiece.eulerAngles = new Vector3(0f, 0f, 180f);
-                    if (Input.GetMouseButtonDown(0))
-                    {
-                        AudioManager.instance.PlaySound("Navigate1");
-                        eqControl = 1;
-                    }
-                }
-                if (angle > 90f && angle < 180f)
-                {
-                    menuPiece.eulerAngles = new Vector3(0f, 0f, 90f);
-                    if (Input.GetMouseButtonDown(0))
-                    {
-                        AudioManager.instance.PlaySound("Navigate1");
-                        eqControl = 2;
-                    }
-                }
-                if (angle > 180f && angle < 270f)
-                {
-                    menuPiece.eulerAngles = new Vector3(0f, 0f, 0f);
-                    if (Input.GetMouseButtonDown(0))
-                    {
-                        enviroment.MenuClickClip();
-                        eqControl = 3;
-                    }
-                }
-                if (angle > 270f && angle < 360f)
-                {
-                    menuPiece.eulerAngles = new Vector3(0f, 0f, 270f);
-                    if (Input.GetMouseButtonDown(0))
-                    {
-                        AudioManager.instance.PlaySound("Navigate1");
-                        eqControl = 4;
-                    }
-                }
-            }        
-        }
-        */
-        /*switch (eqControl)
-        {
-            case 1: Sprint(); break;
-            case 2: HighJump(); break;
-            case 3: GravityControl(); break;
-            case 4: TimeControl(); break;
-        }*/
-
-    }
-    
     void FixedUpdate()
     {
+        Debug.Log(player.Velocity);
+        isNotMoving = true;
         if (Input.GetKey(left))
         {
             player.GoLeft(out bool result);
+            isNotMoving = false;
         }
         if (Input.GetKey(right))
         {
             player.GoRight(out bool result);
+            isNotMoving = false;
         }
         if (Input.GetKey(jump))
         {
             player.Jump(out bool result);
+            isNotMoving = false;
+        }
+        if (isNotMoving)
+        {
+            player.StopPlayer();
         }
         
         if (Input.GetKey(circledMenuBtn))
         {
             circledMenu.Active = true;
+            pickedElement = circledMenu.ChooseElement();
+            if (pickedElement != null)
+            {
+                pickedSkill.sprite = pickedElement.Icon;
+                player.AllAbilities.ActiveAction = pickedElement;
+            }
         }
         else
         {
             circledMenu.Active = false;
         }
 
-    }
-    /*
-    void Sprint()
-    {        
-        jump = 450f;
-        if (groundChecker.IsTouchingLayers(ground))
+        if (player.AllAbilities.ActiveAction != null 
+            && player.AllAbilities.ActiveAction.HoldAbility)
         {
-            //sprint
-            block = Input.GetKey(action) ? 8f : 5f;
-        }
-    }
-    void HighJump()
-    {        
-        block = 5f;
-        if (groundChecker.IsTouchingLayers(ground))
-        {
-            //high jump
             if (Input.GetKey(action))
             {
-                jumpClip = highJumpClip;
-                jump = 900f;
+                player.AllAbilities.DoAction();
             }
             else
             {
-                jumpClip = lowJumpClip;
-                jump = 450f;
+                player.AllAbilities.ReverseAction();
             }
         }
     }
-    void GravityControl()
-    {        
-        block = 5f;
-        jump = 450f;
-        //gravity control
-        
-        if (!groundChecker.IsTouchingLayers(ground)) return;
-        if (!Input.GetKeyDown(action)) return;
-        
-        var gravityScale = rb2dPlayer.gravityScale;
-        gravityScale *= -1;
-        rb2dPlayer.gravityScale = gravityScale;
-        tPlayer.rotation = Quaternion.Euler(gravityScale > 0 ? 0f : 180f, 0f, 0f);
-    }
 
-    private bool onlyOnce = false;
-    void TimeControl()
-    {        
-        block = 5f;
-        jump = 450f;
-        //time control
-        if (Input.GetKey(action))
+    public void Update()
+    {
+        if (player.AllAbilities.ActiveAction != null
+           && !player.AllAbilities.ActiveAction.HoldAbility)
         {
             if (Input.GetKeyDown(action))
             {
-                AudioManager.instance.PlaySound("TimeStopStart");
+                player.AllAbilities.DoAction();
             }
-                   
-            
-            enviroment.rotationSpeed = 10;
-            onlyOnce = true;
-        }
-        else
-        {
-            if (onlyOnce)
+            if (Input.GetKeyUp(action))
             {
-                AudioManager.instance.StopSound("TimeStopStart");
-                AudioManager.instance.PlaySound("TimeStopEnd");
-                onlyOnce = false;
+                player.AllAbilities.ReverseAction();
             }
-            enviroment.rotationSpeed = 50;
         }
     }
-    */
 }

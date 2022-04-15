@@ -10,12 +10,6 @@ public class CameraMove : MonoBehaviour
     [SerializeField] private Transform tPlayer;
     [SerializeField] private Transform tCamera;
     [SerializeField] private Rigidbody2D rb2dCamera;
-
-
-    void Start()
-    {
-        
-    }
     void FixedUpdate()
     {
         //camera movement
@@ -27,11 +21,14 @@ public class CameraMove : MonoBehaviour
         Vector3 dir = playerPosition - cameraPosition;
         rb2dCamera.velocity = dir * (speed * Time.deltaTime);
 
-
+        
+    }
+    private void Update()
+    {
         //camera zoom
         float delta = Input.GetAxisRaw("Mouse ScrollWheel");
         var orthographicSize = mainCamera.orthographicSize;
-        orthographicSize += delta * -50f;
+        orthographicSize += delta * -10f;
         mainCamera.orthographicSize = orthographicSize;
         mainCamera.orthographicSize = Mathf.Clamp(orthographicSize, 2f, 10f);
     }

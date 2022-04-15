@@ -21,7 +21,6 @@ namespace Audio
 
 		[SerializeField]
 		private List<SoundCategory> soundCategories = new List<SoundCategory>();
-
 		public void PlaySound(string _name)
 		{
 			for(int i = 0; i < soundCategories.Count; i++)

@@ -58,8 +58,6 @@ public class Enviroment : MonoBehaviour
 
     private int rotationHandler = 0;
 
-    [SerializeField] private SpriteRenderer timeStopEffect;
-    private float timeStopEffetHandler = 0f;
     
     
     [Header("Platforms Info")]
@@ -83,10 +81,7 @@ public class Enviroment : MonoBehaviour
     {
         //finish reference
         finishCol2D = finish.GetComponent<Collider2D>();
-        finishTr = finish.GetComponent<Transform>();
-        
-        //time effect turn on
-        timeStopEffect.enabled = true;
+        finishTr = finish.GetComponent<Transform>();                
         
         //rotating spikes
         GameObject[] rotatingSpikes = GameObject.FindGameObjectsWithTag("RotatingSpikes");
